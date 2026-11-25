@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mullet_mobprog/constants.dart';
 import 'package:mullet_mobprog/screens/newsfeed_screen.dart';
+import 'package:mullet_mobprog/screens/notification_screen.dart';
+import 'package:mullet_mobprog/screens/profile_screen.dart';
 import 'package:mullet_mobprog/widgets/custom_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,6 +16,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+
+  // Enhancement 2: one title per tab, same order as the nav items
+  final List<String> _titles = const [appName, 'Notifications', 'Profile'];
 
   @override
   void dispose() {
@@ -28,22 +33,27 @@ class _HomeScreenState extends State<HomeScreen> {
         shadowColor: fbTextColorWhite,
         elevation: 2,
         title: CustomText(
-          text: 'Facebook',
+          text: _titles[_selectedIndex],
           fontSize: ScreenUtil().setSp(25),
-          color: fbPrimary,
+          color: _selectedIndex == 0 ? fbPrimary : Colors.black,
           fontFamily: 'Klavika',
           fontWeight: FontWeight.w700,
         ),
       ),
       body: PageView(
         controller: _pageController,
-        children: const <Widget>[NewsfeedScreen()],
+        children: const <Widget>[
+          NewsfeedScreen(),
+          NotificationScreen(),
+          ProfileScreen(),
+        ],
         onPageChanged: (page) {
           setState(() {
             _selectedIndex = page;
           });
         },
       ),
+      // Enhancement 3: more BottomNavigationBarItems
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: false,
         showSelectedLabels: false,
@@ -54,6 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         selectedItemColor: fbPrimary,
         currentIndex: _selectedIndex,

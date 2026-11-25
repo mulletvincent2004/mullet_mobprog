@@ -9,6 +9,7 @@ class NewsfeedCard extends StatelessWidget {
   final String date;
   final int? numOfLikes;
   final String? imagePath;
+  final bool hasPlaceholder;
   final String? avatarPath;
 
   const NewsfeedCard({
@@ -18,10 +19,10 @@ class NewsfeedCard extends StatelessWidget {
     required this.date,
     this.numOfLikes,
     this.imagePath,
+    this.hasPlaceholder = false,
     this.avatarPath,
   });
 
-  // Enhancement 2: reusable avatar widget
   Widget _buildAvatar({String? path, required double radius}) {
     return CircleAvatar(
       radius: radius,
@@ -33,7 +34,6 @@ class NewsfeedCard extends StatelessWidget {
     );
   }
 
-  // Enhancement 3: reusable widget-based action button
   Widget _buildActionButton({
     required IconData icon,
     required Color iconColor,
@@ -51,6 +51,37 @@ class NewsfeedCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Enhancement 1: shows a real image, a placeholder box, or nothing
+  Widget _buildMedia() {
+    if (imagePath != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(ScreenUtil().setSp(6)),
+        child: Image.asset(
+          imagePath!,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              width: double.infinity,
+              height: ScreenUtil().setHeight(150),
+              color: Colors.grey[300],
+              alignment: Alignment.center,
+              child: const Icon(Icons.broken_image, color: Colors.grey),
+            );
+          },
+        ),
+      );
+    }
+    if (hasPlaceholder) {
+      return SizedBox(
+        width: double.infinity,
+        height: ScreenUtil().setHeight(200),
+        child: CustomPaint(painter: _PlaceholderPainter()),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   @override
@@ -71,7 +102,6 @@ class NewsfeedCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                // Enhancement 2: poster avatar
                 _buildAvatar(path: avatarPath, radius: avatarRadius),
                 SizedBox(width: screenUtilWidth),
                 Column(
@@ -107,66 +137,37 @@ class NewsfeedCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: ScreenUtil().setHeight(5)),
-            // post content
             CustomText(
               text: postContent,
               fontSize: ScreenUtil().setSp(12),
               color: Colors.black,
             ),
             SizedBox(height: ScreenUtil().setHeight(5)),
-
-            // Enhancement 1: dynamic image widget
-            if (imagePath != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(ScreenUtil().setSp(6)),
-                child: Image.asset(
-                  imagePath!,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: ScreenUtil().setHeight(150),
-                      color: Colors.grey[300],
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.broken_image, color: Colors.grey),
-                    );
-                  },
-                ),
-              ),
-
-            // Enhancement 3: widget-based Like, Comment, Share buttons
+            _buildMedia(),
             Row(
               children: [
                 _buildActionButton(
                   icon: Icons.thumb_up,
                   iconColor: fbPrimary,
                   label: numOfLikes?.toString() ?? '0',
-                  onPressed: () {
-                    // print('Like button pressed');
-                  },
+                  onPressed: () {},
                 ),
                 _buildActionButton(
                   icon: Icons.chat_bubble_outline,
                   iconColor: fbDarkPrimary,
                   label: 'Comment',
-                  onPressed: () {
-                    // print('Comment button pressed');
-                  },
+                  onPressed: () {},
                 ),
                 _buildActionButton(
                   icon: Icons.redo,
                   iconColor: fbDarkPrimary,
                   label: 'Share',
-                  onPressed: () {
-                    // print('Share button pressed');
-                  },
+                  onPressed: () {},
                 ),
               ],
             ),
             Row(
               children: [
-                // Enhancement 2: commenter avatar
                 _buildAvatar(path: null, radius: avatarRadius),
                 SizedBox(width: ScreenUtil().setWidth(10)),
                 Container(
@@ -205,4 +206,21 @@ class NewsfeedCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Draws a box with an X, like a typical image placeholder
+class _PlaceholderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+    canvas.drawRect(Offset.zero & size, paint);
+    canvas.drawLine(Offset.zero, Offset(size.width, size.height), paint);
+    canvas.drawLine(Offset(size.width, 0), Offset(0, size.height), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

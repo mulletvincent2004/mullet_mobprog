@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:mullet_mobprog/constants.dart';
 import 'package:mullet_mobprog/screens/home_screen.dart';
 import 'package:mullet_mobprog/screens/newsfeed_screen.dart';
 
@@ -19,7 +20,7 @@ class MainApp extends StatelessWidget {
       builder: (_, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Facebook Replication',
+          title: appName,
           initialRoute: '/home',
           routes: {
             '/newsfeed': (context) => const NewsfeedScreen(),
